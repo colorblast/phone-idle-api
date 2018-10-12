@@ -1,5 +1,6 @@
 import os
-from flask import Flask, render_template, send_from_directory
+import json
+from flask import Flask, send_from_directory
 from flask_assets import Environment, Bundle
 
 app = Flask(__name__, static_url_path='/static')
@@ -14,7 +15,33 @@ def serve_res(filename):
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return "You are not authorized to access this api."
+
+@app.route("/adduser")
+def db_add_record():
+    # add db record
+    return "" 
+
+@app.route("/deleteuser")
+def db_del_record():
+    # delete db record
+    return ""
+
+@app.route("/getscores")
+def get_score():
+    # get user scores
+    return ""
+
+@app.route("/getfriends")
+def get_friends():
+    # get user friends
+    return ""
+
+@app.route("/get_leaderboard")
+def get_friends_scores():
+    # gets the user leaderboard
+    return ""
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
