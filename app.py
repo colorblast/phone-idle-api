@@ -1,6 +1,7 @@
 import os
 import json
-from flask import Flask, send_from_directory
+import requests
+from flask import Flask, send_from_directory, session, Response
 from flask_assets import Environment, Bundle
 
 app = Flask(__name__, static_url_path='/static')
@@ -27,17 +28,33 @@ def db_del_record():
     # delete db record
     return ""
 
-@app.route("/getscores")
+@app.route("/getscore")
 def get_score():
-    # get user scores
-    return ""
+    # get user score
+    if request.form["uuid"] and request.form["token"] and request.form["secret"]:
+        if request.form["secret"] == "HIBHAVESH!":
+            # retrieve user score from database
+            return Response(200)
+        else:
+            return Response("403 Not Authorized. Secret is wrong.", 403)
+    else:
+        return Response("Parameters not supplied", 200)
 
 @app.route("/getfriends")
 def get_friends():
     # get user friends
-    return ""
+    if request.form["uuid"] and request.form["token"] and request.form["secret"]:
+        if request.form["secret"] == "HIBHAVESH!":
+            # retrieve user friends
+            r = requests.post("https://graph.facebook.com/v3.1/"+request.form["uuid"]+"/friendlists", data={'user-access-token':request.form["token"]})
+            data = json.load(r.text)
+            return Response(data, 200, mimetype="application/json")
+        else:
+            return Response("403 Not Authorized. Secret is wrong.", 403)
+    else:
+        return Response("Parameters not supplied", 200)
 
-@app.route("/get_leaderboard")
+@app.route("/getleaderboard")
 def get_friends_scores():
     # gets the user leaderboard
     return ""
