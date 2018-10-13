@@ -1,8 +1,9 @@
 import os
 import json
 import requests
-from flask import Flask, send_from_directory, session, Response
+from flask import Flask, send_from_directory, session, Response, request
 from flask_assets import Environment, Bundle
+import logging
 
 app = Flask(__name__, static_url_path='/static')
 app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -40,19 +41,23 @@ def get_score():
     else:
         return Response("Parameters not supplied", 200)
 
-@app.route("/getfriends")
+@app.route("/getfriends", methods=["GET", "POST"])
 def get_friends():
     # get user friends
-    if request.form["uuid"] and request.form["token"] and request.form["secret"]:
-        if request.form["secret"] == "HIBHAVESH!":
-            # retrieve user friends
-            r = requests.post("https://graph.facebook.com/v3.1/"+request.form["uuid"]+"/friendlists", data={'user-access-token':request.form["token"]})
-            data = json.load(r.text)
-            return Response(data, 200, mimetype="application/json")
+    if request.method == "POST":
+        if request.form["uuid"] and request.form["token"] and request.form["secret"]:
+            if request.form["secret"] == "HIBHAVESH!":
+                # retrieve user friends
+                friends = requests.post("https://graph.facebook.com/v3.1/"+request.form["uuid"]+"/friends", data={'user-access-token':request.form["token"]})
+                app.logger.info(friends.text)
+                data = json.load(friends.text)
+                return Response(data, 200, mimetype="application/json")
+            else:
+                return Response("403 Not Authorized. Secret is wrong.", 403)
         else:
-            return Response("403 Not Authorized. Secret is wrong.", 403)
+            return Response("Parameters not supplied", 200)
     else:
-        return Response("Parameters not supplied", 200)
+        return "Method Not Allowed"
 
 @app.route("/getleaderboard")
 def get_friends_scores():
